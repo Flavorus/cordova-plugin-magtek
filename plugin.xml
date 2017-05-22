@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin id="cordova-plugin-magtek" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:rim="http://www.blackberry.com/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android">
+  <name>Magtek</name>
+  <description>Cordova Magtek Plugin</description>
+  <license>MIT</license>
+  <keywords>cordova,credit card,cc,magtek</keywords>
+  <repo></repo>
+
+  <js-module src="www/magtek.js" name="CDVMagtek">
+    <clobbers target="magtek" />
+    <clobbers target="cordova.magtek" />
+  </js-module>
+
+
+  <!-- ios -->
+  <platform name="ios">
+    <config-file target="config.xml" parent="/*">
+      <feature name="CDVMagtek">
+        <param name="ios-package" value="CDVMagtek"/>
+      </feature>
+    </config-file>
+
+    <config-file target="*-Info.plist" parent="UISupportedExternalAccessoryProtocols">
+      <array>
+        <string>com.magtek.dynapromini</string>
+      </array>
+    </config-file>
+    
+
+    <header-file src="src/ios/CDVMagtek.h" />
+    <source-file src="src/ios/CDVMagtek.m" />
+    <header-file src="src/ios/DUKPT.h" />
+    <source-file src="src/ios/DUKPT.m" />
+    <header-file src="src/ios/CommonCryptor.h" />
+    
+    <header-file src="src/ios/MagtekSDK/MTPPSCRA.h" />
+    <header-file src="src/ios/MagtekSDK/CommonDataType.h" />
+    <header-file src="src/ios/MagtekSDK/Constants.h" />
+    <header-file src="src/ios/MagtekSDK/MTCryptoLib.h" />
+    <header-file src="src/ios/MagtekSDK/MTTLV.h" />
+    <framework src="AVFoundation.framework" />
+    <framework src="CoreBluetooth.framework" />
+    <source-file src="src/ios/MagtekSDK/libMTPPSCRA.a" framework="true" />
+    <source-file src="src/ios/MagtekSDK/libCryptographicLibrary.a" framework="true" />
+    <source-file src="src/ios/MagtekSDK/libTLVParserLibrary.a" framework="true" />
+  </platform>
+</plugin>

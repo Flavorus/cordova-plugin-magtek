@@ -1,0 +1,25 @@
+{
+  "name": "cordova-plugin-magtek",
+  "version": "1.3.1",
+  "description": "Cordova magtek Plugin",
+  "cordova": {
+    "platforms": [
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apache/cordova-plugin-magtek"
+  },
+  "keywords": [
+    "cordova",
+    "magtek",
+    "credit card",
+    "magtek",
+    "cc"
+  ],
+  "engines": {
+  },
+  "author": "Veevart",
+  "license": "Apache-2.0"
+}
