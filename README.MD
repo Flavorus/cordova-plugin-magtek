@@ -39,8 +39,7 @@ var q = function(res){console.log(res);}
 magtek.startScanningForPeripherals(q,q);
 magtek.getDiscoveredPeripherals(q,q); //Response example: '{name: "DPMini040F16100D", state: "disconnected", identifier: "C1553D35-CCDC-4CC7-A600-58E2F82DAD4E"}'
 magtek.connectToBLEReader(q,q,"C1553D35-CCDC-4CC7-A600-58E2F82DAD4E"); //Device should start
-magtek.requestCard(q,q)
-//After swiping the card, the `CardRequestComplete` event contains the card information
+magtek.requestCard(q,q)//After swiping the card, the `CardRequestComplete` event contains the card information
 ```
 # API Reference
 
@@ -49,25 +48,25 @@ magtek.requestCard(q,q)
 Function List
 - [init(callback, BDK)](#init)
 - Device connection functions
-  - startScanningForPeripherals(success, error)
-  - stopScanningForPeripherals(success, error)
-  - getDiscoveredPeripherals(success, error)
-  - isDeviceOpened(success, error)
-  - isDeviceConnected(success, error)
-  - getConnectedPeripheral(success, error)
-  - connectToBLEReader(success, error, identifier)
-  - disconnectFromBLEReader(success, error)
+  - [startScanningForPeripherals(success, error)](#startscanningforperipherals)
+  - [stopScanningForPeripherals(success, error)](#stopscanningforperipherals)
+  - [getDiscoveredPeripherals(success, error)](#getdiscoveredperipherals)
+  - [isDeviceOpened(success, error)](#isdeviceopened)
+  - [isDeviceConnected(success, error)](#isdeviceconnected)
+  - [getConnectedPeripheral(success, error)](#getconnectedperipheral)
+  - [connectToBLEReader(success, error, identifier)](#connecttoblereader)
+  - [disconnectFromBLEReader(success, error)](#disconnectfromblereader)
 - Device operation functions
-  - deviceReset(success, error)
-  - cancelOperation(success, error)
+  - [deviceReset(success, error)](#devicereset)
+  - [cancelOperation(success, error)](#canceloperation)
 - Transaction functions
-  - requestCard(success, error)
-  - requestConfirmAmount(success, error)
-  - getLastTransactionInfo(success, error)
-  - requestSmartCardTransaction(success, error, amount)
+  - [requestCard(success, error)](#requestcard)
+  - [requestConfirmAmount(success, error)](#requestconfirmamount)
+  - [getLastTransactionInfo(success, error)](#getlasttransactioninfo)
+  - [requestSmartCardTransaction(success, error, amount)](#requestsmartcardtransaction)
 
 Event List
-- Card
+- [Card](#card)
 - Error
 - BINDataReceived
 - DataArriveComplete
@@ -81,13 +80,13 @@ Event List
 - SendCommandTimeOutComplete
 - RequestPowerUpResetICCComplete
 - OperationStatusReceived
-- CardRequestComplete
+- [CardRequestComplete](#cardrequestcomplete)
 - RequestICCAPDUComplete
 - RequestSmartCardComplete
 - RequestSetEMVTagsComplete
 - RequestUserDataEntryComplete
 
-**Functions**
+# Functions
 
 ## init
 The `init(callback, BDK)` function sets the BDK ([Base Derivation Key](https://en.wikipedia.org/wiki/Derived_unique_key_per_transaction#Keys)) and initializes the magtek instance.
@@ -116,7 +115,7 @@ The [Base Derivation Key](https://en.wikipedia.org/wiki/Derived_unique_key_per_t
 ## getLastTransactionInfo
 ## requestSmartCardTransaction
 
-**Events**
+# Events
 Listen to Magtek events as cases of the **magtekEvent** event and get the event `data` attribute: 
 
 ```javascript
@@ -139,17 +138,17 @@ window.addEventListener('magtekEvent', function (e) {
   }
 });
 ```
-##OperationStatusReceived
+## OperationStatusReceived
 Data is a String
 
 Eg: "00"
 
-##Card
+## Card
 Data is a String
 
 Eg: "cardDataAvailable"
 
-##CardRequestComplete
+## CardRequestComplete
 Data is a JSON
 
 Eg:
