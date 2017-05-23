@@ -1,4 +1,4 @@
-**Magtek Plugin**
+# Magtek Plugin
 
 Cordova plugin for [Magtek](https://www.magtek.com/) devices, with this plugin you can search, connect and make transactions using magtek devices to read data from credit/debit cards.
 
@@ -37,8 +37,8 @@ magtek.init(function(err,res){
 
 var q = function(res){console.log(res);}
 magtek.startScanningForPeripherals(q,q);
-magtek.getDiscoveredPeripherals(q,q); //Response example: '{name: "DPMini040F16100D", state: "disconnected", identifier: "C1553D35-CCDC-4CC7-A600-58E2F82DAD4E"}'
-magtek.connectToBLEReader(q,q,"C1553D35-CCDC-4CC7-A600-58E2F82DAD4E"); //Device should start
+magtek.getDiscoveredPeripherals(q,q); //Response example: '{name: "DPMini040F16100D", state: "disconnected", identifier: "C1553D35-XXXX-XXXX-XXXX-58E2F82DAD4E"}'
+magtek.connectToBLEReader(q,q,"C1553D35-XXXX-4CC7-XXXX-58E2F82DAD4E"); //Device should start
 magtek.requestCard(q,q)//After swiping the card, the `CardRequestComplete` event contains the card information
 ```
 # API Reference
