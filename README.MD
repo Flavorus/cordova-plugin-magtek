@@ -101,19 +101,47 @@ function(err,res){}
 The [Base Derivation Key](https://en.wikipedia.org/wiki/Derived_unique_key_per_transaction#Keys) is the unique company fixed key 
 
 ## startScanningForPeripherals
+The `startScanningForPeripherals This method starts the scanning of surrounding Peripherals.
+
 ## stopScanningForPeripherals
+This method stops the scanning for surrounding Peripherals.
+
 ## getDiscoveredPeripherals
+This method retrieves the surrounding discovered peripherals(DynaPro Minis)
+
 ## isDeviceOpened
+Retrieves the device’s open status
+
 ## isDeviceConnected
+Retrieves the device’s connection status
+
 ## getConnectedPeripheral
+This method retrieves the currently connected peripheral (DynaPro Mini)
+
 ## connectToBLEReader
+This method sets the UUID string for the device to be connected to through BLE, connecting to the device
+
+### Parameters
+####
+
 ## disconnectFromBLEReader
 ## deviceReset
+This method simply sends the reset command to the device.
+
 ## cancelOperation
+This method sends the cancel command to the device.
+
 ## requestCard
+This method triggers the device to begin the Card Swipe Transaction.
+
 ## requestConfirmAmount
+This method sends the Response report to the device. The device will prompt the user to select a transaction type.
+
 ## getLastTransactionInfo
+This methods returns an object containing the last transaction information (last name, first name, middle name, expiration date, card type, card last 4, card service code)
+
 ## requestSmartCardTransaction
+This method triggers a Smart Card transaction.
 
 # Events
 Listen to Magtek events as cases of the **magtekEvent** event and get the event `data` attribute: 
@@ -138,18 +166,64 @@ window.addEventListener('magtekEvent', function (e) {
   }
 });
 ```
-## OperationStatusReceived
-Data is a String
-
-Eg: "00"
-
 ## Card
-Data is a String
+Called when the MSR data is ready to be retrieved after issuing requestCard. Data is a String
 
-Eg: "cardDataAvailable"
+## Error
+Called when an error is encountered.
+data: A string value containing the error description
+
+## DataArriveComplete
+Called when data is returned from sendSpecialCommandWithCommand.
+data: A String value is returned containing the data received from the device
+
+## ATRRequestComplete
+Called when data is returned from requestATR.
+data: A String value is returned containing the ATR data received from the device
+
+## SendICCAPDUComplete
+Called when data is returned from sendICCAPDUWithCommand.
+data: A String value is returned containing the ICC APDU data received from the device
+
+## SetCAPublicKeyComplete
+Called when data is returned from setCAPublicKeyWithOperation.
+data: A String value is returned containing the CA Public Key data received from the device
+
+## PINRequestComplete
+Called when data is returned from requestPIN.
+data: A PIN DATA object is returned containing the KSN, Encrypted PIN Block, and Status Code
+
+## KeyRequestComplete
+Called when data is returned from requestResponse.
+data: An Unsigned Char value is returned containing the Key Value data of the Key that was pressed by the user
+
+## DisplayRequestComplete
+Called when data is returned from setDisplayMessage.
+data: An Unsigned Char value is returned containing the Status Code of the Display Message
+
+## BypassPINCommandComplete
+Called when data is returned from requestBypassPINCommand.
+data: A String value is returned containing the Bypass PIN data received from the device
+
+## SendCommandTimeOutComplete
+Called when data is returned from sendSpecialCommandWithCommand.
+data: A String value is returned containing data (if any) from the Time
+
+## RequestDeviceConfigurationComplete
+Called when data is returned from requestDeviceConfigurationForInformation.
+data: A String value is returned containing the Device Configuration information from the device
+
+## RequestPowerUpResetICCAPDUComplete
+Called when data is returned from requestPowerUpResetICCWithWaitTime.
+data: A String value is returned containing the ICC APDU data (if any) after the device has completed the Reset/Power Up
+
+## RequestChallengeAndSessionKeyRequestComplete
+Called when data is returned from requestChallengeAndSessionForInformation.
+data: A String value is returned containing the Challenge and Session Key from the device
 
 ## CardRequestComplete
-Data is a JSON
+Called when data is returned from requestCard.
+data: A CARD DATA INFO object is returned containing all of the necessary card data
 
 Eg:
 ```javascript
@@ -181,3 +255,23 @@ Eg:
   Track3Unmasked = "";
 }
 ```
+
+## RequestICCAPDUComplete
+Called when data is returned from requestICCAPDUForInformation.
+data: An object with two attributes: operationStatus (A String value is returned for the operation status) and cardStatus (A String value is returned for the card status)
+
+## RequestSetEMVTagsComplete
+Called when data is returned from requestSetEMVTagsWithTagType.
+data: A String value is returned containing the EMV Tag data
+
+## RequestSmartCardComplete
+Called after sendAcquirerResponseWithResponse is completed.
+data: A String value is returned containing the Smart Card batch data
+
+## SendAcquirerResponseComplete
+Called when data is returned from sendAcquirerResponseWithResponse.
+data: A String value is returned containing the Acquirer Response data
+
+## RequestUserDataEntryComplete
+Called when data is returned from requestUserDataEntryWithWaitTime.
+data: A USER DATA ENTRY object is returned containing the Encrypted Data Block and the MSR KSN.
