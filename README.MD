@@ -177,8 +177,8 @@ window.addEventListener('magtekEvent', function (e) {
 });
 ```
 
-| Event     | description | data  |
-| --------- | ----------- | ----- |
+| Event | description | data  |
+| --- | -------- | -------- |
 | SetCAPublicKeyComplete  | Called when data is returned from setCAPublicKeyWithOperation.| A String value is returned containing the CA Public Key data received from the device |
 | SendICCAPDUComplete | Called when data is returned from sendICCAPDUWithCommand. | A String value is returned containing the ICC APDU data received from the device |
 | ATRRequestComplete | Called when data is returned from requestATR. | A String value is returned containing the ATR data received from the device |
