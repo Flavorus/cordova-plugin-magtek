@@ -152,6 +152,7 @@ Eg: "cardDataAvailable"
 Data is a JSON
 
 Eg:
+```javascript
 {
   CardExpDate = 2312;
   CardLast4 = 4242;
@@ -179,3 +180,4 @@ Eg:
   Track3Masked = "";
   Track3Unmasked = "";
 }
+```
