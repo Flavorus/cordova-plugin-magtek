@@ -67,25 +67,25 @@ Functions
   4. requestSmartCardTransaction(success, error, amount)
 
 Events
-2. Card
-2. Error
-2. BINDataReceived
-2. DataArriveComplete
-2. ACKStatusReceived
-2. ATRRequestComplete
-2. SendICCAPDUComplete
-2. SetCAPublicKeyComplete
-2. PINRequestComplete
-2. KeyRequestComplete
-2. BypassPinCommandComplete
-2. SendCommandTimeOutComplete
-2. RequestPowerUpResetICCComplete
-2. OperationStatusReceived
-2. CardRequestComplete
-2. RequestICCAPDUComplete
-2. RequestSmartCardComplete
-2. RequestSetEMVTagsComplete
-2. RequestUserDataEntryComplete
+1. Card
+1. Error
+1. BINDataReceived
+1. DataArriveComplete
+1. ACKStatusReceived
+1. ATRRequestComplete
+1. SendICCAPDUComplete
+1. SetCAPublicKeyComplete
+1. PINRequestComplete
+1. KeyRequestComplete
+1. BypassPinCommandComplete
+1. SendCommandTimeOutComplete
+1. RequestPowerUpResetICCComplete
+1. OperationStatusReceived
+1. CardRequestComplete
+1. RequestICCAPDUComplete
+1. RequestSmartCardComplete
+1. RequestSetEMVTagsComplete
+1. RequestUserDataEntryComplete
 
 **Functions**
 
