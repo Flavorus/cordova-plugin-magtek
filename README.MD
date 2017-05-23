@@ -46,26 +46,27 @@ magtek.requestCard(q,q)
 
 **you need to call init function before using any other method**
 
-1. Functions
-  1. init(callback, BDK)
-  2. Device connection functions
-    2. startScanningForPeripherals(success, error)
-      2. stopScanningForPeripherals(success, error)
-      2. getDiscoveredPeripherals(success, error)
-      2. isDeviceOpened(success, error)
-      2. isDeviceConnected(success, error)
-      2. getConnectedPeripheral(success, error)
-      2. connectToBLEReader(success, error, identifier)
-      2. disconnectFromBLEReader(success, error)
-  3. Device operation functions
-      3. deviceReset(success, error)
-      3. cancelOperation(success, error)
-  4. Transaction functions
-      4. requestCard(success, error)
-      4. requestConfirmAmount(success, error)
-      4. getLastTransactionInfo(success, error)
-      4. requestSmartCardTransaction(success, error, amount)
-2. Events
+Functions
+1. init(callback, BDK)
+2. Device connection functions
+  2. startScanningForPeripherals(success, error)
+  2. stopScanningForPeripherals(success, error)
+  2. getDiscoveredPeripherals(success, error)
+  2. isDeviceOpened(success, error)
+  2. isDeviceConnected(success, error)
+  2. getConnectedPeripheral(success, error)
+  2. connectToBLEReader(success, error, identifier)
+  2. disconnectFromBLEReader(success, error)
+3. Device operation functions
+  3. deviceReset(success, error)
+  3. cancelOperation(success, error)
+4. Transaction functions
+  4. requestCard(success, error)
+  4. requestConfirmAmount(success, error)
+  4. getLastTransactionInfo(success, error)
+  4. requestSmartCardTransaction(success, error, amount)
+
+Events
   2. Card
   2. Error
   2. BINDataReceived
