@@ -46,46 +46,46 @@ magtek.requestCard(q,q)
 
 **you need to call init function before using any other method**
 
-Functions
-1. init(callback, BDK)
-2. Device connection functions
-  2. startScanningForPeripherals(success, error)
-  2. stopScanningForPeripherals(success, error)
-  2. getDiscoveredPeripherals(success, error)
-  2. isDeviceOpened(success, error)
-  2. isDeviceConnected(success, error)
-  2. getConnectedPeripheral(success, error)
-  2. connectToBLEReader(success, error, identifier)
-  2. disconnectFromBLEReader(success, error)
-3. Device operation functions
-  3. deviceReset(success, error)
-  3. cancelOperation(success, error)
-4. Transaction functions
-  4. requestCard(success, error)
-  4. requestConfirmAmount(success, error)
-  4. getLastTransactionInfo(success, error)
-  4. requestSmartCardTransaction(success, error, amount)
+Function List
+- init(callback, BDK)
+- Device connection functions
+  - startScanningForPeripherals(success, error)
+  - stopScanningForPeripherals(success, error)
+  - getDiscoveredPeripherals(success, error)
+  - isDeviceOpened(success, error)
+  - isDeviceConnected(success, error)
+  - getConnectedPeripheral(success, error)
+  - connectToBLEReader(success, error, identifier)
+  - disconnectFromBLEReader(success, error)
+- Device operation functions
+  - deviceReset(success, error)
+  - cancelOperation(success, error)
+- Transaction functions
+  - requestCard(success, error)
+  - requestConfirmAmount(success, error)
+  - getLastTransactionInfo(success, error)
+  - requestSmartCardTransaction(success, error, amount)
 
-Events
-1. Card
-1. Error
-1. BINDataReceived
-1. DataArriveComplete
-1. ACKStatusReceived
-1. ATRRequestComplete
-1. SendICCAPDUComplete
-1. SetCAPublicKeyComplete
-1. PINRequestComplete
-1. KeyRequestComplete
-1. BypassPinCommandComplete
-1. SendCommandTimeOutComplete
-1. RequestPowerUpResetICCComplete
-1. OperationStatusReceived
-1. CardRequestComplete
-1. RequestICCAPDUComplete
-1. RequestSmartCardComplete
-1. RequestSetEMVTagsComplete
-1. RequestUserDataEntryComplete
+Event List
+- Card
+- Error
+- BINDataReceived
+- DataArriveComplete
+- ACKStatusReceived
+- ATRRequestComplete
+- SendICCAPDUComplete
+- SetCAPublicKeyComplete
+- PINRequestComplete
+- KeyRequestComplete
+- BypassPinCommandComplete
+- SendCommandTimeOutComplete
+- RequestPowerUpResetICCComplete
+- OperationStatusReceived
+- CardRequestComplete
+- RequestICCAPDUComplete
+- RequestSmartCardComplete
+- RequestSetEMVTagsComplete
+- RequestUserDataEntryComplete
 
 **Functions**
 
