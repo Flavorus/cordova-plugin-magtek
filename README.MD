@@ -47,7 +47,7 @@ magtek.requestCard(q,q)
 **you need to call init function before using any other method**
 
 Function List
-- init(callback, BDK)
+- [init(callback, BDK)](#init)
 - Device connection functions
   - startScanningForPeripherals(success, error)
   - stopScanningForPeripherals(success, error)
