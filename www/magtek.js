@@ -19,10 +19,10 @@ module.exports = {
     getConnectedPeripheral: function (success, error) {
         exec(success, error, "CDVMagtek", "getConnectedPeripheral", []);
     },
-    connectToBLEReader: function (success, error, identifier) {
+    connectToBLEReader: function (identifier, success, error) {
         exec(success, error, "CDVMagtek", "connectToBLEReader", [identifier]);
     },
-    init: function (callback, bkn) {
+    init: function (bkn, callback) {
     	var connected = false;
     	exec(function (result) {
     		if (!connected) {
@@ -58,7 +58,7 @@ module.exports = {
     getLastTransactionInfo: function (success, error) {
     	exec(success, error, "CDVMagtek", "getLastTransactionInfo", []);
     },
-    requestSmartCardTransaction: function (success, error, amount) {
+    requestSmartCardTransaction: function (amount, success, error) {
     	exec(success, error, "CDVMagtek", "requestSmartCardTransaction", [amount]);
     }
 };
