@@ -29,7 +29,7 @@ module.exports = {
     			callback(null, result);
     			connected = true;
     		} else {
-                console.log(result);
+                // console.log(result);
     			cordova.fireWindowEvent("magtekEvent", result);
     		}
     	},
