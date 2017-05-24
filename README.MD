@@ -149,7 +149,12 @@ The `requestConfirmAmount(success, error)` method sends the Response report to t
 The `getLastTransactionInfo(success, error)` methods returns an object containing the last transaction information (last name, first name, middle name, expiration date, card type, card last 4, card service code)
 
 ## requestSmartCardTransaction
-The `requestSmartCardTransaction() method triggers a Smart Card transaction.
+The `requestSmartCardTransaction(amount, success, error)` method triggers a Smart Card transaction.
+
+| Parameter   | Value    | Example |
+| ----------- | -------- | --- |
+| amount  | A String containing the amount to pay | "200" |
+
 
 ---
 
