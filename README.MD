@@ -26,7 +26,7 @@ Note: Plugin requires the following frameworks, although plugin adds them, doubl
 
 # Install
 
-Install using `cordova plugin add https://github.com/auctifera-josed/cordova-plugin-cardflight`
+Install using `cordova plugin add https://github.com/auctifera-josed/cordova-plugin-magtek`
 
 # Example
 ```javascript
