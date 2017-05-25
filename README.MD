@@ -51,7 +51,7 @@ Function List
   - [startScanningForPeripherals(success, error)](#startscanningforperipherals)
   - [stopScanningForPeripherals(success, error)](#stopscanningforperipherals)
   - [getDiscoveredPeripherals(success, error)](#getdiscoveredperipherals)
-  - [connectToBLEReader(identifier, success, error)](#connecttoblereader)
+  - [connectToBLEReader(identifier, success, error)](#connecttoblereader) Note: If prompted, enter passcode 000000
   - [getConnectedPeripheral(success, error)](#getconnectedperipheral)
   - [disconnectFromBLEReader(success, error)](#disconnectfromblereader)
   - [isDeviceConnected(success, error)](#isdeviceconnected)
@@ -128,6 +128,8 @@ The `connectToBLEReader(identifier, success, error)` method sets the UUID string
 | Parameter   | Value    | 
 | ----------- | -------- |
 | identifier  | The magtek device's unique identifier (obtained using the `getDiscoveredPeripherals` method)     |
+
+**NOTE: When you are connecting for the first time to a Magtek device you'll be prompted in the iOS device to enter the code displayed in the device, if no code is displayed use 000000***
 
 ## disconnectFromBLEReader
 The `disconnectFromBLEReader(success, error)` method removes the UUID string for the device to be disconnected from BLE, disconnecting from the device
