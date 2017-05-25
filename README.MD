@@ -30,10 +30,10 @@ Install using `cordova plugin add https://github.com/auctifera-josed/cordova-plu
 
 # Example
 ```javascript
-magtek.init(function(err,res){
+magtek.init('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',function(err,res){
   if (err) console.log(err);
   else console.log(res);
-}, 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+})
 
 var q = function(res){console.log(res);}
 magtek.startScanningForPeripherals(q,q);
@@ -61,7 +61,6 @@ Function List
   - [isDeviceOpened(success, error)](#isdeviceopened)
 - Transaction functions
   - [requestCard(success, error)](#requestcard)
-  - [requestConfirmAmount(success, error)](#requestconfirmamount)
   - [getLastTransactionInfo(success, error)](#getlasttransactioninfo)
   - [requestSmartCardTransaction(amount, success, error)](#requestsmartcardtransaction)
 
@@ -141,9 +140,6 @@ The `cancelOperation(success, error)` method sends the cancel command to the dev
 
 ## requestCard
 The `requestCard(success, error)` method triggers the device to begin the Card Swipe Transaction.
-
-## requestConfirmAmount
-The `requestConfirmAmount(success, error)` method sends the Response report to the device. The device will prompt the user to select a transaction type.
 
 ## getLastTransactionInfo
 The `getLastTransactionInfo(success, error)` methods returns an object containing the last transaction information (last name, first name, middle name, expiration date, card type, card last 4, card service code)

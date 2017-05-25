@@ -36,7 +36,7 @@ typedef enum eFunctionKey
 - (void)disconnectFromBLEReader: (CDVInvokedUrlCommand *) command;
 - (void)setAmount: (CDVInvokedUrlCommand*) command;
 - (void)requestCard: (CDVInvokedUrlCommand*) command;
-//- (void)requestConfirmAmount: (CDVInvokedUrlCommand*) command;
+// - (void)requestConfirmAmount: (CDVInvokedUrlCommand*) command;
 - (void)cancelOperation: (CDVInvokedUrlCommand*) command;
 - (void)deviceReset: (CDVInvokedUrlCommand*) command;
 - (void)getLastTransactionInfo: (CDVInvokedUrlCommand*) command;

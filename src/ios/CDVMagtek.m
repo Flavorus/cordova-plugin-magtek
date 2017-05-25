@@ -323,8 +323,8 @@ static NSString *bdk = nil;
         self.deviceSerialNumber = deviceInformation;
         
         /* START Example conversion from NSString to Byte Array */
-        //        NSString *amountStringExample  = @"1,000.50";
-        
+        //NSString *amountString  = @"1,000.50";
+        NSLog(@"%@", amountString);
         amountString = [amountString stringByReplacingOccurrencesOfString:@","
                                                                withString:@""];
         
@@ -365,13 +365,13 @@ static NSString *bdk = nil;
         unsigned char transactionType      = 0x08;
         unsigned char cashBack[]           = {0x00, 0x00, 0x00, 0x00, 0x10, 0x00};
         unsigned char reservedBytes[28]    = {0};
-        
+
         returnCode = [magtek requestSmartCard:cardType
                          confirmationWaitTime:confirmationWaitTime
                                   PINWaitTime:PINWaitTime
                                          tone:tone
                                        option:option
-                                       amount:amount
+                                       amount:amountArrayExample
                               transactionType:transactionType
                                      cashBack:cashBack
                                 reservedBytes:reservedBytes];
@@ -794,9 +794,14 @@ static NSString *bdk = nil;
     else if([[magtek getCardType] isEqualToString:@"FINANCIALCARD"]) {
         if([self checkIfDeviceIsSRED] == YES) {
             // TODO: This data will need to be parsed with a TLV Parser. The MSR Data is encrypted within the DFDF59 tag.
-            [self sendEvent:@"RequestSmartCardComplete" withData:[magtek getSREDResponseData]];
+            NSLog(@"FINANCIALCARD need to decrypt with TLV Parser");
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [self sendEvent:@"RequestSmartCardComplete" withData:[magtek getSREDResponseData]];
+            });
+            
         } else if([self checkIfDeviceIsSRED] == NO) {
             // Card data retrieved through the MTPPSCRA Library
+            NSLog(@"Card data retrieved through the MTPPSCRA Library");
             [cardDataAsDictionary setObject:[magtek getSDKVersion] forKey:@"SDKVersion"];
             [cardDataAsDictionary setObject:[magtek getEncodeType] forKey:@"EncodeType"];
             [cardDataAsDictionary setObject:[magtek getTrack1DecodeStatus] forKey:@"Track1DecodeStatus"];
@@ -824,22 +829,23 @@ static NSString *bdk = nil;
     // Else the Card Type is an AAMVA Card
     else if([[magtek getCardType] isEqualToString:@"AAMVACARD"])
     {
-        
+        NSLog(@"AAMVACARD");
     }
     // Else the Card Type was a Manual Entry
     else if([[magtek getCardType] isEqualToString:@"MANUALCARD"])
     {
-        
+        NSLog(@"MANUALCARD");
     }
     // Else the Card Type is an Unknown Card
     else if([[magtek getCardType] isEqualToString:@"UNKNOWNCARD"])
     {
-        
+        NSLog(@"UNKNOWNCARD");   
     }
     // Else the Card Type is an ICC Card
     else if([[magtek getCardType] isEqualToString:@"ICCCARD"])
     {
         // If the Smart Card used is a Chip & Signature card the the isSignatureRequired method will return YES.
+        NSLog(@"ICCCARD");
         NSLog(@"Is Signature Required = %@\n", ([magtek isSignatureRequired] ? @"YES" : @"NO"));
         
         // Card data retrieved through the MTPPSCRA Library
@@ -857,7 +863,7 @@ static NSString *bdk = nil;
     // Else the Card Type is a Contactless ICC Card
     else if([[magtek getCardType] isEqualToString:@"CONTACTLESSICCCARD"])
     {
-        
+        NSLog(@"CONTACTLESSICCCARD");   
     }
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -871,79 +877,82 @@ static NSString *bdk = nil;
                            withData:(NSString *)data
 {
     NSLog(@"onRequestSetEMVTagsComplete");
-    MTPPSCRA *mtPPSCRA = [MTPPSCRA shareInstance];
-    MTTLV    *mtTLV    = [MTTLV sharedInstance];
+    NSLog(@"%@", data);
+    // MTPPSCRA *mtPPSCRA = [MTPPSCRA shareInstance];
+    // MTTLV    *mtTLV    = [MTTLV sharedInstance];
     
-    NSInteger returnCode = 0;
+    // NSInteger returnCode = 0;
     
-    NSString *errorMessage          = @"";
-    NSString *transactionDataString = [data substringWithRange:NSMakeRange(4, [data length] - 10 - 4)];
+    // NSString *errorMessage          = @"";
+    // NSString *transactionDataString = [data substringWithRange:NSMakeRange(4, [data length] - 10 - 4)];
+    // NSLog(@"%@", transactionDataString);
+    // returnCode = [mtTLV parseTLVDataObject:transactionDataString
+    //                               ErrorMsg:&errorMessage];
     
-    returnCode = [mtTLV parseTLVDataObject:transactionDataString
-                                  ErrorMsg:&errorMessage];
+    // returnCode = [mtTLV printTLVList];
     
-    returnCode = [mtTLV printTLVList];
+    // unsigned char cardStatus[1] = {0};
+    // int cardStatusLen           = 1;
     
-    unsigned char cardStatus[1] = {0};
-    int cardStatusLen           = 1;
+    // returnCode = [mtTLV getTagValue:0xDFDF1A
+    //                        TagValue:cardStatus
+    //                          TagLen:&cardStatusLen];
     
-    returnCode = [mtTLV getTagValue:0xDFDF1A
-                           TagValue:cardStatus
-                             TagLen:&cardStatusLen];
+    // //      Get the Merchant Data
+    // TagEntry tagEntryKSN;
+    // tagEntryKSN.Tag = 0xF7;
+    // tagEntryKSN.Len = 0;
     
-    //      Get the Merchant Data
-    TagEntry tagEntryKSN;
-    tagEntryKSN.Tag = 0xF7;
-    tagEntryKSN.Len = 0;
+    // //      Get the length
+    // returnCode = [mtTLV getTagLen:tagEntryKSN.Tag
+    //                        tagLen:&tagEntryKSN.Len];
     
-    //      Get the length
-    returnCode = [mtTLV getTagLen:tagEntryKSN.Tag
-                           tagLen:&tagEntryKSN.Len];
+    // //      Allocate memory
+    // tagEntryKSN.Value = (unsigned char *)malloc(sizeof(unsigned char)*tagEntryKSN.Len);
     
-    //      Allocate memory
-    tagEntryKSN.Value = (unsigned char *)malloc(sizeof(unsigned char)*tagEntryKSN.Len);
+    // NSInteger *tagLength = (NSInteger *)tagEntryKSN.Len;
     
-    NSInteger *tagLength = (NSInteger *)tagEntryKSN.Len;
+    // NSMutableString *merchantDataString = [mtTLV returnTLVList];
     
-    NSMutableString *merchantDataString = [mtTLV returnTLVList];
-    
-    if(tagLength == 0 || tagLength == nil)
-    {
-        [mtPPSCRA endSession:0];
+    // if(tagLength == 0 || tagLength == nil)
+    // {
+    //     [mtPPSCRA endSession:0];
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSLog(@"%@", merchantDataString);
-        });
-    }
-    else
-    {
-        //Get Value byte
-        returnCode = [mtTLV getTLV:tagEntryKSN.Tag
-                          TagEntry:&tagEntryKSN];
+    //     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    //         NSLog(@"%@", merchantDataString);
+    //     });
+    // }
+    // else
+    // {
+    //     //Get Value byte
+    //     returnCode = [mtTLV getTLV:tagEntryKSN.Tag
+    //                       TagEntry:&tagEntryKSN];
         
-        char sErrorMsg[128] = {0};
+    //     char sErrorMsg[128] = {0};
         
-        returnCode = [mtTLV parseSequence:tagEntryKSN.Value
-                                TLVLength:tagEntryKSN.Len
-                                 ErrorMsg:sErrorMsg];
+    //     returnCode = [mtTLV parseSequence:tagEntryKSN.Value
+    //                             TLVLength:tagEntryKSN.Len
+    //                              ErrorMsg:sErrorMsg];
         
-        returnCode = [mtTLV printTLVList];
+    //     returnCode = [mtTLV printTLVList];
         
-        free(tagEntryKSN.Value);
+    //     free(tagEntryKSN.Value);
         
-        returnCode = [mtPPSCRA endSession:0];
+    //     returnCode = [mtPPSCRA endSession:0];
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSLog(@"%@", merchantDataString);
-            [self sendEvent:@"RequestSetEMVTagsComplete" withData:merchantDataString];
-        });
-    }
+    //     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    //         NSLog(@"%@", merchantDataString);
+    //         [self sendEvent:@"RequestSetEMVTagsComplete" withData:merchantDataString];
+    //     });
+    // }
 }
 
-// - (void)onSendAcquirerResponseComplete:(unsigned char)statusCode
-//                               withData:(NSString *)data
-// {
-//     NSLog(@"onSendAcquirerResponseComplete");
+- (void)onSendAcquirerResponseComplete:(unsigned char)statusCode
+                              withData:(NSString *)data
+{
+    NSLog(@"onSendAcquirerResponseComplete");
+    NSLog(@"%@", data);
+
 //     MTPPSCRA *mtPPSCRA = [MTPPSCRA shareInstance];
 //     MTTLV    *mtTLV    = [MTTLV sharedInstance];
     
@@ -1030,7 +1039,7 @@ static NSString *bdk = nil;
 //     NSLog(@"onSendAcquirerResponseCompleteWithData %ld", (long)returnCode);
     
 // #endif
-// }
+}
 
 - (void)onRequestUserDataEntryComplete:(unsigned char *)statusCode
                               withData:(USER_ENTRY_DATA *)data
