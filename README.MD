@@ -38,7 +38,7 @@ magtek.init('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',function(err,res){
 var q = function(res){console.log(res);}
 magtek.startScanningForPeripherals(q,q);
 magtek.getDiscoveredPeripherals(q,q); //Response example: '{name: "DPMini040F16100D", state: "disconnected", identifier: "C1553D35-XXXX-XXXX-XXXX-58E2F82DAD4E"}'
-magtek.connectToBLEReader(q,q,"C1553D35-XXXX-4CC7-XXXX-58E2F82DAD4E"); //Device should start
+magtek.connectToBLEReader("C1553D35-XXXX-4CC7-XXXX-58E2F82DAD4E",q,q); //Device should start
 magtek.requestCard(q,q)//After swiping the card, the `CardRequestComplete` event contains the card information
 ```
 # API Reference
