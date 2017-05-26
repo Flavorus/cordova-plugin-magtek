@@ -24,18 +24,17 @@ static NSString *bdk = nil;
     MTPPSCRA* magtek = [MTPPSCRA shareInstance];
     magtek.delegate2 = self;
     [magtek setMTPPSCRALibrary];
+    NSString* identifier = [self loadPeripheral];
+    
     [self openDevice];
-    NSLog(@"MagTek Plugin initialized");
+    if (identifier && ![identifier isEqualToString:@""]){
+        [self connectToBLEReaderWithUUID:identifier];
+    }
 }
 
 - (void)init: (CDVInvokedUrlCommand *) command {
     // // self.magtek = [[MTPPSCRA alloc] init];
     [self.commandDelegate runInBackground:^{
-        //		MTPPSCRA* magtek = [MTPPSCRA shareInstance];
-        //		magtek.delegate2 = self;
-        //		[magtek setMTPPSCRALibrary];
-        //
-        //		 [self openDevice];
         if (command.arguments.count > 0) {
             bdk = [command.arguments objectAtIndex:0];
         }
@@ -43,6 +42,7 @@ static NSString *bdk = nil;
         dataCallbackId = command.callbackId;
         CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [result setKeepCallbackAsBool:YES];
+        // [self openDevice];
         [self.commandDelegate sendPluginResult:result callbackId:dataCallbackId];
     }];
 }
@@ -54,7 +54,7 @@ static NSString *bdk = nil;
         for (CBPeripheral *peripheral in [magtek getDiscoveredPeripherals]){
             [peripherals addObject:[self peripheralToDictionary:peripheral]];
         }
-        NSLog(@"Peripherals: %@", peripherals);
+        
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsMultipart:[peripherals copy]];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
@@ -63,7 +63,7 @@ static NSString *bdk = nil;
 - (void)startScanningForPeripherals: (CDVInvokedUrlCommand *) command {
     [self.commandDelegate runInBackground:^{
         MTPPSCRA* magtek = [MTPPSCRA shareInstance];
-        NSLog(@"startScanningForPeripherals");
+        
         [magtek startScanningForPeripherals];
     }];
 }
@@ -71,24 +71,26 @@ static NSString *bdk = nil;
 - (void)stopScanningForPeripherals: (CDVInvokedUrlCommand *) command {
     [self.commandDelegate runInBackground:^{
         MTPPSCRA* magtek = [MTPPSCRA shareInstance];
-        NSLog(@"stopScanningForPeripherals");
+        
         [magtek stopScanningForPeripherals];
     }];
 }
 
 - (void)connectToBLEReader: (CDVInvokedUrlCommand *) command {
     [self.commandDelegate runInBackground:^{
-        MTPPSCRA* magtek = [MTPPSCRA shareInstance];
         NSString* identifier = nil;
         if (command.arguments.count > 0) {
             identifier = [command.arguments objectAtIndex:0];
         }
-        if([[magtek getConnectedPeripheral] state] == CBPeripheralStateConnected) {
-            [self closeDevice];
+
+        if (identifier && ![identifier isEqualToString:@""]){
+            [self connectToBLEReaderWithUUID:identifier];
+            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        } else {
+            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Device Identifier is required"];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         }
-        NSLog(@"Connecting to %@", identifier);
-        [magtek setDeviceUUIDString:identifier];
-        [self openDevice];
     }];
 }
 
@@ -117,7 +119,7 @@ static NSString *bdk = nil;
     [self.commandDelegate runInBackground:^{
         MTPPSCRA* magtek = [MTPPSCRA shareInstance];
         CBPeripheral* peripheral = [magtek getConnectedPeripheral];
-        NSLog(@"%@", peripheral);
+        
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self peripheralToDictionary:peripheral]];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
@@ -143,18 +145,26 @@ static NSString *bdk = nil;
 
 #pragma mark Device Connection Helpers
 
+- (void)connectToBLEReaderWithUUID:(NSString *)identifier {
+    MTPPSCRA* magtek = [MTPPSCRA shareInstance];
+    if([[magtek getConnectedPeripheral] state] == CBPeripheralStateConnected) {
+        [self closeDevice];
+    }
+    
+    [magtek setDeviceUUIDString:identifier];
+    [self savePeripheral:identifier];
+    [self openDevice];
+}
+
 - (void)openDevice {
     MTPPSCRA* magtek = [MTPPSCRA shareInstance];
     
     switch([magtek getDeviceType])
     {
         case MAGTEKDYNAPROMINIUART:
+            
             // if the EASession is not already open then we open the EASession
             [magtek setDeviceType:(MAGTEKDYNAPROMINIUART)];
-            // NSString* identifier = [self loadPeripheral];
-            // if (identifier)
-            // 	[magtek setDeviceUUIDString:identifier];
-            
             if([magtek isDeviceOpened] == NO)
             {
                 [magtek openDevice];
@@ -164,10 +174,8 @@ static NSString *bdk = nil;
             
         case MAGTEKDYNAPROMINIBLE:
         {
+            
             [magtek setDeviceType:(MAGTEKDYNAPROMINIBLE)];
-            // NSString* identifier = [self loadPeripheral];
-            // if (identifier)
-            // 	[magtek setDeviceUUIDString:identifier];
             [magtek openDevice];
             break;
             
@@ -185,10 +193,10 @@ static NSString *bdk = nil;
     {
         [magtek closeDevice];
     }
+    [self savePeripheral:[[[magtek getConnectedPeripheral] identifier] UUIDString]];
 }
 
-- (BOOL)checkIfDeviceIsSRED
-{
+- (BOOL)checkIfDeviceIsSRED {
     MTPPSCRA *mtPPSCRA = [MTPPSCRA shareInstance];
     
     NSString *errorString = @"";
@@ -198,63 +206,40 @@ static NSString *bdk = nil;
     // If the errorString is not empty then we received an error
     if(![errorString isEqualToString:@""])
     {
-        NSLog(@"isDeviceSRED Error - %@", errorString);
+        
     }
     
     return isSRED;
 }
 
-// - (NSString *)loadPeripheral
-// {
-//     // retrieve the stored Peripheral if any
-//     NSUserDefaults *userDefaults     = [NSUserDefaults standardUserDefaults];
-//     NSArray        *peripheralArray  = [userDefaults   objectForKey:@"storedPeripheral"];
+- (NSString *)loadPeripheral {
+    return [[NSUserDefaults standardUserDefaults]   objectForKey:@"storedMagtekDevice"];
+}
 
-//     if([peripheralArray isKindOfClass:[NSArray class]])
-//     {
-//         if([peripheralArray count] > 0)
-//         {
-//             for(id deviceUUIDString in peripheralArray)
-//             {
-//                 if(![deviceUUIDString isKindOfClass:[NSString class]])
-//                 {
-//                     continue;
-//                 }
+- (void)savePeripheral: (NSString *)identifier
+{
+    
+    [[NSUserDefaults standardUserDefaults] setObject:identifier forKey:@"storedMagtekDevice"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    // // store the Peripheral information for automatic connection later
+    // NSUserDefaults *userDefaults           = [NSUserDefaults standardUserDefaults];
+    // NSMutableArray *newDevicesMutableArray = [[NSMutableArray alloc] init];
 
-//                 return deviceUUIDString;
-//             }
-//         }
-//     }
+    // NSString *uuidString = [NSString stringWithFormat:@"%@", [[peripheral identifier] UUIDString]];
 
-//     return @"";
-// }
+    // if(![uuidString isEqualToString:@""])
+    // {
+    //     [newDevicesMutableArray addObject:uuidString];
 
-// - (void)savePeripheral
-// {
-//     MTPPSCRA *mtPPSCRA = [MTPPSCRA shareInstance];
+    //     [userDefaults setObject:newDevicesMutableArray
+    //                      forKey:@"storedPeripheral"];
 
-//     // retrieve the currently connected Peripheral information
-//     CBPeripheral *peripheral = [mtPPSCRA getConnectedPeripheral];
-
-//     // store the Peripheral information for automatic connection later
-//     NSUserDefaults *userDefaults           = [NSUserDefaults standardUserDefaults];
-//     NSMutableArray *newDevicesMutableArray = [[NSMutableArray alloc] init];
-
-//     NSString *uuidString = [NSString stringWithFormat:@"%@", [[peripheral identifier] UUIDString]];
-
-//     if(![uuidString isEqualToString:@""])
-//     {
-//         [newDevicesMutableArray addObject:uuidString];
-
-//         [userDefaults setObject:newDevicesMutableArray
-//                          forKey:@"storedPeripheral"];
-
-//         [userDefaults synchronize];
-//     }
-//     else
-//     {
-//     }
-// }
+    //     [userDefaults synchronize];
+    // }
+    // else
+    // {
+    // }
+}
 
 #pragma mark -
 #pragma mark Transaction Methods
@@ -324,7 +309,7 @@ static NSString *bdk = nil;
         
         /* START Example conversion from NSString to Byte Array */
         //NSString *amountString  = @"1,000.50";
-        NSLog(@"%@", amountString);
+        
         amountString = [amountString stringByReplacingOccurrencesOfString:@","
                                                                withString:@""];
         
@@ -377,7 +362,7 @@ static NSString *bdk = nil;
                                 reservedBytes:reservedBytes];
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSLog(@"Request Smart Card has been sent to the device.");
+            
         });
     }];
 }
@@ -421,7 +406,7 @@ static NSString *bdk = nil;
                          PINLengthMax:6
                                 tones:1
                               options:0];
-    NSLog(@"requestPINSelected: %ld", (long) returnCode);
+    
 }
 
 - (void)getLastTransactionInfo: (CDVInvokedUrlCommand*) command {
@@ -459,7 +444,7 @@ static NSString *bdk = nil;
 #pragma mark -
 
 - (void)cardDataAvailable {
-    //    NSLog(@"cardDataAvailable");
+    //    
     MTPPSCRA *magtek = [MTPPSCRA shareInstance];
     
     [magtek requestMSR];
@@ -467,7 +452,7 @@ static NSString *bdk = nil;
 }
 
 - (void)onError:(NSString *)errorCode {
-    //    NSLog(@"onError");
+    //    
     MTPPSCRA *magtek = [MTPPSCRA shareInstance];
     
     [magtek endSession:0];
@@ -479,14 +464,14 @@ static NSString *bdk = nil;
 }
 
 - (void)onBINDataReceived:(NSString *)data {
-    //    NSLog(@"onBINDataReceived");
+    //    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self sendEvent:@"BINDataReceived" withData:data];
     });
 }
 
 - (void)onDataArriveComplete:(NSString *)data {
-    //    NSLog(@"onDataArriveComplete");
+    //    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self sendEvent:@"DataArriveComplete" withData:data];
     });
@@ -494,7 +479,7 @@ static NSString *bdk = nil;
 
 - (void)currentACKStatusReceived:(NSString *)ACKStatus {
     if (![ACKStatus isEqual:@"00"]){
-        //        NSLog(@"currentACKStatusReceived");
+        //        
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [self sendEvent:@"ACKStatusReceived" withData:ACKStatus];
         });
@@ -502,14 +487,14 @@ static NSString *bdk = nil;
 }
 
 - (void)onATRRequestComplete:(NSString *)data {
-    //    NSLog(@"onATRRequestComplete");
+    //    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self sendEvent:@"ATRRequestComplete" withData:data];
     });
 }
 
 - (void)onSendICCAPDUComplete:(NSString *)data {
-    //    NSLog(@"onSendICCAPDUComplete");
+    //    
     MTPPSCRA *magtek = [MTPPSCRA shareInstance];
     
     unsigned char iv[8] = {0};
@@ -548,8 +533,8 @@ static NSString *bdk = nil;
     {
         parsedRAPDUString = [RAPDUString substringWithRange:NSMakeRange(4, decryptedRAPDULen*2)];
     }
-    NSLog(@"RAPDUMutableString: %@", RAPDUMutableString);
-    NSLog(@"parsedRAPDUString: %@", parsedRAPDUString);
+    
+    
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self sendEvent:@"SendICCAPDUComplete" withData:RAPDUMutableString];
@@ -557,7 +542,7 @@ static NSString *bdk = nil;
 }
 
 - (void)onSetCAPublicKeyComplete:(NSString *)data {
-    //    NSLog(@"onSetCAPublicKeyComplete");
+    //    
     [[MTPPSCRA shareInstance] endSession:0];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -566,7 +551,7 @@ static NSString *bdk = nil;
 }
 
 - (void)onPINRequestComplete:(PINDATA *)retData {
-    //    NSLog(@"onPINRequestComplete");
+    //    
     MTPPSCRA *magtek = [MTPPSCRA shareInstance];
     
     /*
@@ -594,7 +579,7 @@ static NSString *bdk = nil;
 }
 
 - (void)onKeyRequestComplete:(unsigned char)keyPressed {
-    //    NSLog(@"onKeyRequestComplete");
+    //    
     MTPPSCRA *magtek = [MTPPSCRA shareInstance];
     
     switch(keyPressed)
@@ -671,7 +656,7 @@ static NSString *bdk = nil;
 }
 
 - (void)onDisplayRequestComplete:(unsigned char)statusCode {
-    //    NSLog(@"onDisplayRequestComplete");
+    //    
     MTPPSCRA *magtek = [MTPPSCRA shareInstance];
     
     if(self.displayApproved == YES) {
@@ -688,28 +673,28 @@ static NSString *bdk = nil;
 }
 
 - (void)onBypassPINCommandComplete:(NSString *)data {
-    //    NSLog(@"onBypassPINCommandComplete");
+    //    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self sendEvent:@"BypassPinCommandComplete" withData:data];
     });
 }
 
 - (void)onSendCommandTimeOutComplete:(NSString *)data {
-    //    NSLog(@"onSendCommandTimeOutComplete");
+    //    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self sendEvent:@"SendCommandTimeOutComplete" withData:data];
     });
 }
 
 - (void)onRequestPowerUpResetICCComplete:(NSString *)data {
-    //    NSLog(@"onRequestPowerUpResetICCComplete");
+    //    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self sendEvent:@"RequestPowerUpResetICCComplete" withData:data];
     });
 }
 
 - (void)onOperationStatusReceieved:(NSString *)operationStatus {
-    //    NSLog(@"onOperationStatusReceieved");
+    //    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self sendEvent:@"OperationStatusReceived" withData:operationStatus];
     });
@@ -718,7 +703,7 @@ static NSString *bdk = nil;
 - (void)onCardRequestComplete:(unsigned char *)statusCode
                    andCarData:(CARD_DATA_INFO *)pCardData {
     
-    //    NSLog(@"onCardRequestComplete with code %c", *statusCode);
+    //    
     
     MTPPSCRA *magtek = [MTPPSCRA shareInstance];
     NSMutableDictionary* cardDataAsDictionary = [[NSMutableDictionary alloc] init];
@@ -750,7 +735,7 @@ static NSString *bdk = nil;
     [cardDataAsDictionary setObject:[d decrypt:[pCardData EncTrack2]] forKey:@"Track2Unmasked"];
     [cardDataAsDictionary setObject:[d decrypt:[pCardData EncTrack3]] forKey:@"Track3Unmasked"];
 
-    NSLog(@"%@", cardDataAsDictionary);
+    
     
     if(*statusCode == 0)
     {
@@ -764,7 +749,7 @@ static NSString *bdk = nil;
 
 - (void)onRequestICCAPDUComplete:(NSString *)operationStatus
                   withCardstatus:(NSString *)cardStatus {
-    //    NSLog(@"onRequestICCAPDUComplete");
+    //    
     NSInteger returnCode = 0;
     
     NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
@@ -781,7 +766,7 @@ static NSString *bdk = nil;
 - (void)onRequestSmartCardComplete:(unsigned char)statusCode
                           withData:(NSString *)data
 {
-    //    NSLog(@"onRequestSmartCardComplete");
+    //    
     MTPPSCRA *magtek = [MTPPSCRA shareInstance];
     
     NSMutableDictionary *cardDataAsDictionary = [[NSMutableDictionary alloc] init];
@@ -794,14 +779,14 @@ static NSString *bdk = nil;
     else if([[magtek getCardType] isEqualToString:@"FINANCIALCARD"]) {
         if([self checkIfDeviceIsSRED] == YES) {
             // TODO: This data will need to be parsed with a TLV Parser. The MSR Data is encrypted within the DFDF59 tag.
-            NSLog(@"FINANCIALCARD need to decrypt with TLV Parser");
+            
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 [self sendEvent:@"RequestSmartCardComplete" withData:[magtek getSREDResponseData]];
             });
             
         } else if([self checkIfDeviceIsSRED] == NO) {
             // Card data retrieved through the MTPPSCRA Library
-            NSLog(@"Card data retrieved through the MTPPSCRA Library");
+            
             [cardDataAsDictionary setObject:[magtek getSDKVersion] forKey:@"SDKVersion"];
             [cardDataAsDictionary setObject:[magtek getEncodeType] forKey:@"EncodeType"];
             [cardDataAsDictionary setObject:[magtek getTrack1DecodeStatus] forKey:@"Track1DecodeStatus"];
@@ -829,24 +814,24 @@ static NSString *bdk = nil;
     // Else the Card Type is an AAMVA Card
     else if([[magtek getCardType] isEqualToString:@"AAMVACARD"])
     {
-        NSLog(@"AAMVACARD");
+        
     }
     // Else the Card Type was a Manual Entry
     else if([[magtek getCardType] isEqualToString:@"MANUALCARD"])
     {
-        NSLog(@"MANUALCARD");
+        
     }
     // Else the Card Type is an Unknown Card
     else if([[magtek getCardType] isEqualToString:@"UNKNOWNCARD"])
     {
-        NSLog(@"UNKNOWNCARD");   
+        
     }
     // Else the Card Type is an ICC Card
     else if([[magtek getCardType] isEqualToString:@"ICCCARD"])
     {
         // If the Smart Card used is a Chip & Signature card the the isSignatureRequired method will return YES.
-        NSLog(@"ICCCARD");
-        NSLog(@"Is Signature Required = %@\n", ([magtek isSignatureRequired] ? @"YES" : @"NO"));
+        
+        
         
         // Card data retrieved through the MTPPSCRA Library
         [cardDataAsDictionary setObject:[magtek getTrack2Equivalent] forKey:@"Track2Equivalent"];
@@ -863,7 +848,7 @@ static NSString *bdk = nil;
     // Else the Card Type is a Contactless ICC Card
     else if([[magtek getCardType] isEqualToString:@"CONTACTLESSICCCARD"])
     {
-        NSLog(@"CONTACTLESSICCCARD");   
+        
     }
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -876,8 +861,8 @@ static NSString *bdk = nil;
 - (void)onRequestSetEMVTagsComplete:(unsigned char)statusCode
                            withData:(NSString *)data
 {
-    NSLog(@"onRequestSetEMVTagsComplete");
-    NSLog(@"%@", data);
+    
+    
     // MTPPSCRA *mtPPSCRA = [MTPPSCRA shareInstance];
     // MTTLV    *mtTLV    = [MTTLV sharedInstance];
     
@@ -885,7 +870,7 @@ static NSString *bdk = nil;
     
     // NSString *errorMessage          = @"";
     // NSString *transactionDataString = [data substringWithRange:NSMakeRange(4, [data length] - 10 - 4)];
-    // NSLog(@"%@", transactionDataString);
+    // 
     // returnCode = [mtTLV parseTLVDataObject:transactionDataString
     //                               ErrorMsg:&errorMessage];
     
@@ -919,7 +904,7 @@ static NSString *bdk = nil;
     //     [mtPPSCRA endSession:0];
         
     //     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    //         NSLog(@"%@", merchantDataString);
+    //         
     //     });
     // }
     // else
@@ -941,7 +926,7 @@ static NSString *bdk = nil;
     //     returnCode = [mtPPSCRA endSession:0];
         
     //     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    //         NSLog(@"%@", merchantDataString);
+    //         
     //         [self sendEvent:@"RequestSetEMVTagsComplete" withData:merchantDataString];
     //     });
     // }
@@ -950,8 +935,8 @@ static NSString *bdk = nil;
 - (void)onSendAcquirerResponseComplete:(unsigned char)statusCode
                               withData:(NSString *)data
 {
-    NSLog(@"onSendAcquirerResponseComplete");
-    NSLog(@"%@", data);
+    
+    
 
 //     MTPPSCRA *mtPPSCRA = [MTPPSCRA shareInstance];
 //     MTTLV    *mtTLV    = [MTTLV sharedInstance];
@@ -971,7 +956,7 @@ static NSString *bdk = nil;
     
 //     //    NSMutableString *TLVOutputString = [mtTLV returnTLVList];
 //     //
-//     //    NSLog(@"%@", TLVOutputString);
+//     //    
 //     //
 //     //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 //     //
@@ -1036,7 +1021,7 @@ static NSString *bdk = nil;
     
 //     returnCode = [mtPPSCRA sendAcquirerResponse:commandToDevice
 //                                  responseLength:commandToDeviceLength];
-//     NSLog(@"onSendAcquirerResponseCompleteWithData %ld", (long)returnCode);
+//     
     
 // #endif
 }
@@ -1044,7 +1029,7 @@ static NSString *bdk = nil;
 - (void)onRequestUserDataEntryComplete:(unsigned char *)statusCode
                               withData:(USER_ENTRY_DATA *)data
 {
-    NSLog(@"onRequestUserDataEntryComplete");
+    
     MTPPSCRA *magtek = [MTPPSCRA shareInstance];
     
     NSInteger returnCode = 0;
@@ -1090,7 +1075,7 @@ static NSString *bdk = nil;
 }
 
 - (void)sendEvent:(NSString *)dataType withData:(id)data {
-    NSLog(@"%@", data);
+    
     if (dataCallbackId != nil) {
         NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
         [dict setObject:dataType forKey:@"dataType"];
